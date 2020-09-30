@@ -59,7 +59,8 @@ class Cell:
 
 
 """
-Define a Maze class. 
+Define a Maze class. This class keeps track of a "board" as a 2-dimensional array of integers representing the status of each
+location in this Maze.
 
 """
 
@@ -72,7 +73,7 @@ class Maze:
         self.q = q
         self.p = p
         obstaclesList = []
-        # range() generates a list from 0 to dim-1 which can take up a lot of memory
+        # If a randomly selected number between 0 and 1 is less than p, coordinates (i, j) will represent a blocked cell.
         for i in range(0, dim):
             for j in range(0, dim):
                 if(rnd.random() < p):
@@ -82,8 +83,18 @@ class Maze:
         self.board[0, 0] = Cell.OPEN
         self.board[dim - 1, dim - 1] = Cell.OPEN
 
+    """
+    Check to see if a path exists from the start coordinates to the goal coordinates.
+
+    """
+
     def isSolvable(self):
         return pathExists(self)
+
+    """
+    Choose a random location on this Maze's board to start the fire.
+
+    """
 
     def startFire(self):
         i = rnd.randint(0, self.dim-1)
@@ -94,41 +105,64 @@ class Maze:
         self.board[i, j] = Cell.ON_FIRE
         self.currentfire.append([i, j, None])
 
-    def resetFire(self):
-        if (len(self.currentfire) == 1):
-            fireRow, fireCol, ignored = self.currentfire[0]
-            self.board[fireRow, fireCol] = Cell.OPEN
-            self.currentfire = []
+    """
+    Check to see if a path exists from the start coordinates to the fire's coordinates.
+
+    """
 
     def isFireReachableToAgent(self):
         if (len(self.currentfire) == 1):
             fireRow, fireCol, ignored = self.currentfire[0]
             return pathExists(self, toCoords=(fireRow, fireCol), findNeighborsFunction=findNeighboringFlammableCoords)
 
+    """
+    Clear the fire's starting position, and return to a fire-less maze. This method is mainly meant to use in the case that
+    the agent is not reachable by the fire.
+
+    """
+
+    def resetFire(self):
+        if (len(self.currentfire) == 1):
+            fireRow, fireCol, ignored = self.currentfire[0]
+            self.board[fireRow, fireCol] = Cell.OPEN
+            self.currentfire = []
+
+    """
+    Rohan please comment a summary of this method here.
+
+    """
+
     def iterateFire(self):
-        visited = []  # neighbors already visited in current iteration
-        nowonfire = []  # need to append all new fires at the end
+        # Create a list of neighbors already visited in current iteration.
+        visited = []
+        # Create a list to which the method will append all new fires at the end.
+        nowonfire = []
         for f in self.currentfire:
-            if(f[2] != 0):  # check to see if all neighbors are already on fire.
-                # calculate valid neighbors of f, the cell that is currently on fire
+            # Check to see if all neighbors are already on fire.
+            if(f[2] != 0):
+                # Calculate valid neighbors of f, the cell that is currently on fire.
                 neighbors = findNeighboringFlammableCoords(f[0:2], self)
-                ofnbor = 0  # counter to find out how many neighbors are on fire
-                for n in neighbors:  # loop through the neighbors of f
+                # Count how many neighbors are on fire.
+                ofnbor = 0
+                for n in neighbors:
                     nr, nc = n
                     if (self.board[nr, nc] == Cell.ON_FIRE):
                         ofnbor = ofnbor + 1
                     else:
-                        if(n[0:2] not in visited):  # only roll once for each cell not on fire
+                        # Only roll once for each cell not on fire.
+                        if(n[0:2] not in visited):
                             if(self.board[nr, nc] != Cell.BLOCKED):
-                                # see what the neighbors are for the neighbor of f
+                                # See what the neighbors are for the neighbor of f.
                                 surroundings = findNeighboringFlammableCoords(
                                     n[0:2], self)
-                                k = 0  # k will be guaranteed to be at least 1
+                                # k will be guaranteed to be at least 1.
+                                k = 0
                                 for nn in surroundings:
                                     nnr, nnc = nn
                                     if(self.board[nnr, nnc] == Cell.ON_FIRE):
-                                        k = k + 1  # counter
-                                if(rnd.random() <= (1-((1-self.q)**k))):  # roll
+                                        k = k + 1
+                                # Roll.
+                                if(rnd.random() <= (1-((1-self.q)**k))):
                                     self.board[nr, nc] = Cell.ON_FIRE
                                     nowonfire.append([nr, nc, None])
                                     ofnbor = ofnbor + 1
@@ -141,6 +175,12 @@ class Maze:
                 self.currentfire.append(x)
             return True
         return False
+
+
+"""
+Find the neighbors of the given coordinates that are on the given Maze's board and are open.
+
+"""
 
 
 def findNeighboringOpenCoords(coords, maze):
@@ -156,6 +196,12 @@ def findNeighboringOpenCoords(coords, maze):
     return neighbors
 
 
+"""
+Find the neighbors of the given coordinates that are on the given Maze's board and are not blocked.
+
+"""
+
+
 def findNeighboringFlammableCoords(coords, maze):
     cellRow, cellCol = coords
     potentialNeighbors = [(cellRow + 1, cellCol), (cellRow - 1,
@@ -167,6 +213,14 @@ def findNeighboringFlammableCoords(coords, maze):
             continue
         neighbors.append(potentialNeighbor)
     return neighbors
+
+
+"""
+Utilize a simple DFS algorithm to check if a path exists from the fromCoords (default: (0, 0)) to the toCoords 
+(default: (maze.dim - 1, maze.dim - 1), i.e. bottom right of maze). This method does not return an actual path,
+and simply checks to see whether a path exists.
+
+"""
 
 
 def pathExists(maze, fromCoords=(0, 0), toCoords=None, findNeighborsFunction=findNeighboringOpenCoords):
@@ -191,25 +245,47 @@ def pathExists(maze, fromCoords=(0, 0), toCoords=None, findNeighborsFunction=fin
     return False
 
 
+"""
+Implement a default heuristic function, such that the heuristic score is always 0 and thus the A* f-score of a 
+node would always rely on the distance of the node from the start.
+
+"""
+
+
 def uniformCost(cell, maze, visited):
     return 0
+
+
+"""
+Find the shortest path from the startCoords (default: (0, 0)) to the goalCoords (default: (maze.dim - 1, maze.dim - 1),
+i.e. bottom right of maze). This method allows for a custom heuristic function to be passed as an argument, as well as
+a custom function for finding neighbors of a pair of coordinates; both of these customizations have default functions
+implemented. If the goal is found, the method utilizes the prev attribute of the Cell objects to trace back the path.
+
+"""
 
 
 def shortestPathSearch(maze, startCoords=(0, 0), goalCoords=None, heuristicFunction=uniformCost, findNeighborsFunction=findNeighboringOpenCoords):
     if goalCoords is None:
         goalCoords = (maze.dim - 1, maze.dim - 1)
     startCell = Cell(startCoords)
+    # Create a set of visited nodes so that we do not visit them again, thereby preventing loops.
     visited = set()
+    # The fringe will be a priority queue of Cells, which are ranked by their A* f-scores.
     fringe = PriorityQueue()
     fringe.put(startCell)
+    # Create a dictionary for the heuritic function's use, so that previously calculated heuristics need not be calculated again.
     heuristicVisited = {}
+    # Track the number of expanded cells for testing purposes.
     expandedCells = 0
     while not fringe.empty():
         currentCell = fringe.get()
+        # This conditional is required in the case that two Cells with the same pair of coordinates exist in the fringe.
         if (currentCell.coords) in visited:
             continue
         if (currentCell.coords == goalCoords):
             shortestPath = []
+            # Trace back the shortest path.
             while (currentCell is not None):
                 shortestPath.append(currentCell.coords)
                 currentCell = currentCell.prev
@@ -219,15 +295,18 @@ def shortestPathSearch(maze, startCoords=(0, 0), goalCoords=None, heuristicFunct
             neighborsCoordsList = findNeighborsFunction(
                 coords=currentCell.coords, maze=maze)
             for neighborCoords in neighborsCoordsList:
+                # Ignore neighbors that have already been visited.
                 if neighborCoords in visited:
                     continue
                 neighbor = Cell(neighborCoords, prev=currentCell)
+                # The neighbor's distance from start is simply the current Cell's distance from start, plus 1.
                 neighbor.g = currentCell.g + 1
+                # Calculate the neighbor's heuristic score.
                 neighbor.h = heuristicFunction(
                     cell=neighbor, maze=maze, visited=heuristicVisited)
                 neighbor.f = neighbor.g + neighbor.h
                 fringe.put(neighbor)
             visited.add(currentCell.coords)
-            # print(currentCell.coords)
+            # After a Cell has had its neighbors analyzed, the expanded cell count increments by 1.
             expandedCells += 1
     return None
