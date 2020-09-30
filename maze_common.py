@@ -1,7 +1,12 @@
-from queue import PriorityQueue, LifoQueue
-import numpy as np
 import random as rnd
+from queue import LifoQueue, PriorityQueue
 
+import numpy as np
+
+"""
+Define a Cell class. This class keeps track of the previous Cell through which the search algorithm traveled to analyze this Cell.
+
+"""
 class Cell: 
     
     OPEN = 0
