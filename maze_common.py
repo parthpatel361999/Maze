@@ -316,10 +316,18 @@ def shortestPathSearch(maze, startCoords=(0, 0), goalCoords=None, heuristicFunct
     return None
 
 
+"""
+Converts an inputted tuple to a unique integer based on the dimensions of the maze 
+"""
+
 
 def tupleToIndex(r, c, dim):
     return dim * r + c #converts cell tuples to unique integers
 
+
+"""
+Converts an inputted integer back to it's corresponding tuple based on the dimensions of the maze 
+"""
 
 
 def indexToTuple(i, dim):
