@@ -314,3 +314,13 @@ def shortestPathSearch(maze, startCoords=(0, 0), goalCoords=None, heuristicFunct
             # After a Cell has had its neighbors analyzed, the expanded cell count increments by 1.
             expandedCells += 1
     return None
+
+
+
+def tupleToIndex(r, c, dim):
+    return dim * r + c #converts cell tuples to unique integers
+
+
+
+def indexToTuple(i, dim):
+    return (int(i / dim), i % dim) #converts the unique integers back into their respective tuples
