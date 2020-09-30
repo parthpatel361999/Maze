@@ -72,6 +72,8 @@ class Maze:
         self.currentfire = []
         self.q = q
         self.p = p
+        self.board_prob = np.zeros(shape=(dim**2,dim**2))
+        self.fires = np.array([])
         obstaclesList = []
         # If a randomly selected number between 0 and 1 is less than p, coordinates (i, j) will represent a blocked cell.
         for i in range(0, dim):
@@ -104,6 +106,7 @@ class Maze:
             j = rnd.randint(0, self.dim - 1)
         self.board[i, j] = Cell.ON_FIRE
         self.currentfire.append([i, j, None])
+        self.fires = np.append(self.fires, [tupleToIndex(i, j, self.dim)])
 
     """
     Check to see if a path exists from the start coordinates to the fire's coordinates.
@@ -173,6 +176,7 @@ class Maze:
         if(nowonfire):
             for x in nowonfire:
                 self.currentfire.append(x)
+                self.fires = np.append(self.fires, tupleToIndex(x[0], x[1], self.dim))
             return True
         return False
 
