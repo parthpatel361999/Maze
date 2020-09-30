@@ -2,3 +2,4 @@
 */.ipynb_checkpoints/*
 **/*.ipynb_checkpoints/
 test.py
+__pycache__/maze_common.cpython-38.pyc
