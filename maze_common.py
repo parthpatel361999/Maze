@@ -131,7 +131,14 @@ class Maze:
             self.currentfire = []
 
     """
-    Rohan please comment a summary of this method here.
+     
+    iterateFire is used for Part 1. We keep track of the first fire set in the maze in a list. Then we look at its neighbors. 
+    The neighbors of the cells that are on fire will at least have a neighbor that is on fire (ie, a cell's neighbor's neighbor
+    is itself once.)
+    Then we calculate the probability that the neighbor of the cell that is on fire will be on fire in this time step.
+    If that is the case, it is added to a list of fires which is maintained by object.
+    If a cell has exhausted its ability to spread its fires to its neighbors, that cell will no longer be considered in this
+    analysis.
 
     """
 
